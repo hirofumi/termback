@@ -1,52 +1,131 @@
 # termback
 
-![Build](https://github.com/hirofumi/termback/workflows/Build/badge.svg)
-[![Version](https://img.shields.io/jetbrains/plugin/v/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID)
-[![Downloads](https://img.shields.io/jetbrains/plugin/d/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID)
-
-## Template ToDo list
-- [x] Create a new [IntelliJ Platform Plugin Template][template] project.
-- [ ] Get familiar with the [template documentation][template].
-- [ ] Adjust the [pluginGroup](./gradle.properties) and [pluginName](./gradle.properties), as well as the [id](./src/main/resources/META-INF/plugin.xml) and [sources package](./src/main/kotlin).
-- [ ] Adjust the plugin description in `README` (see [Tips][docs:plugin-description])
-- [ ] Review the [Legal Agreements](https://plugins.jetbrains.com/docs/marketplace/legal-agreements.html?from=IJPluginTemplate).
-- [ ] [Publish a plugin manually](https://plugins.jetbrains.com/docs/intellij/publishing-plugin.html?from=IJPluginTemplate) for the first time.
-- [ ] Set the `MARKETPLACE_ID` in the above README badges. You can obtain it once the plugin is published to JetBrains Marketplace.
-- [ ] Set the [Plugin Signing](https://plugins.jetbrains.com/docs/intellij/plugin-signing.html?from=IJPluginTemplate) related [secrets](https://github.com/JetBrains/intellij-platform-plugin-template#environment-variables).
-- [ ] Set the [Deployment Token](https://plugins.jetbrains.com/docs/marketplace/plugin-upload.html?from=IJPluginTemplate).
-- [ ] Click the <kbd>Watch</kbd> button on the top of the [IntelliJ Platform Plugin Template][template] to be notified about releases containing new features and fixes.
-- [ ] Configure the [CODECOV_TOKEN](https://docs.codecov.com/docs/quick-start) secret for automated test coverage reports on PRs
-
 <!-- Plugin description -->
-This Fancy IntelliJ Platform Plugin is going to be your implementation of the brilliant ideas that you have.
+Send notifications from terminal processes to IntelliJ IDE.
 
-This specific section is a source for the [plugin.xml](/src/main/resources/META-INF/plugin.xml) file which will be extracted by the [Gradle](/build.gradle.kts) during the build process.
-
-To keep everything working, do not remove `<!-- ... -->` sections. 
+Each terminal tab is assigned a unique session ID exposed via environment variables.
+Scripts can send HTTP requests to display IDE notifications and focus the originating tab.
 <!-- Plugin description end -->
+
+## Requirements
+
+- IntelliJ IDEA 2025.3.1 or later (or compatible IDE)
 
 ## Installation
 
-- Using the IDE built-in plugin system:
+1. Download ZIP from [Releases](https://github.com/hirofumi/termback/releases)
+2. Settings → Plugins → ⚙️ → Install Plugin from Disk...
 
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > <kbd>Search for "termback"</kbd> >
-  <kbd>Install</kbd>
+## Usage
 
-- Using JetBrains Marketplace:
+### Environment Variables
 
-  Go to [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID) and install it by clicking the <kbd>Install to ...</kbd> button in case your IDE is running.
+When you open a new terminal tab, the following environment variables are set:
 
-  You can also download the [latest release](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID/versions) from JetBrains Marketplace and install it manually using
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
+| Variable | Description |
+|----------|-------------|
+| `TERMBACK_ENDPOINT` | Notification endpoint URL |
+| `TERMBACK_SESSION_ID` | UUID identifying the tab |
 
-- Manually:
+### Sending Notifications
 
-  Download the [latest release](https://github.com/hirofumi/termback/releases/latest) and install it manually using
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
+```bash
+curl -fsS --json "$(jq -n --arg msg "Done" '{sessionId: env.TERMBACK_SESSION_ID, message: $msg}')" "$TERMBACK_ENDPOINT"
+```
 
+### Shell Function
 
----
-Plugin based on the [IntelliJ Platform Plugin Template][template].
+```bash
+termback() {
+  test -z "$TERMBACK_ENDPOINT" && return 0
+  curl -fsS --json "$(jq -n --arg msg "$1" '{sessionId: env.TERMBACK_SESSION_ID, message: $msg}')" "$TERMBACK_ENDPOINT" > /dev/null 2>&1
+}
 
-[template]: https://github.com/JetBrains/intellij-platform-plugin-template
-[docs:plugin-description]: https://plugins.jetbrains.com/docs/intellij/plugin-user-experience.html#plugin-description-and-presentation
+# Example
+./build.sh && termback "Build completed"
+```
+
+### Claude Code Hooks
+
+Add to `.claude/settings.json` to receive IDE notifications when Claude Code is waiting for input:
+
+```json
+{
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "test -z \"$TERMBACK_ENDPOINT\" || { jq '{sessionId: env.TERMBACK_SESSION_ID, message: .message}' | curl -fsS --json @- \"$TERMBACK_ENDPOINT\" > /dev/null; }"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+## API
+
+### Endpoint
+
+`POST /api/termback`
+
+### Request
+
+| Field | Type | Required | Default | Description |
+|-------|------|:--------:|---------|-------------|
+| `sessionId` | string | ✓ | | Tab session ID |
+| `message` | string | ✓ | | Notification body |
+| `title` | string | | `null` | Notification title |
+| `broadcast` | boolean | | `true` | true: all projects, false: session's project only |
+| `suppress` | string | | `"whenActive"` | Suppress condition |
+| `onNext` | string | | `"expire"` | Behavior on next notification |
+
+#### suppress
+
+Controls notification suppression based on tab state. When the condition is met:
+- At creation time: notification is skipped (not created)
+- After creation: notification is expired (dismissed)
+
+| Value | Behavior |
+|-------|----------|
+| `"none"` | Never suppress |
+| `"whenActive"` | Suppress when tab is active (selected and tool window has focus) |
+| `"whenVisible"` | Suppress when tab is visible (selected and tool window is open) |
+
+#### onNext
+
+Controls behavior when a new notification arrives for the same tab.
+
+| Value | Behavior |
+|-------|----------|
+| `"keep"` | Keep notification when a new one arrives |
+| `"expire"` | Expire notification when a new one arrives |
+
+### Response
+
+| Status | Description |
+|--------|-------------|
+| 202 | Request accepted for processing |
+| 400 | Invalid request |
+| 404 | Session not found |
+
+A 202 response indicates the request was accepted. The notification may be silently skipped if `suppress` conditions are met.
+
+## Development
+
+### Requirements
+
+- JDK 21
+
+### Commands
+
+```bash
+./gradlew build        # Build
+./gradlew buildPlugin  # Build plugin ZIP (build/distributions/)
+./gradlew runIde       # Run in sandbox IDE (logs: build/idea-sandbox/{IDE-version}/log/idea.log)
+./gradlew test         # Test
+```
