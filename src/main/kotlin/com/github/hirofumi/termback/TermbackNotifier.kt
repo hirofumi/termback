@@ -94,25 +94,7 @@ class TermbackNotifier {
 
         notification.addAction(
             NotificationAction.createSimple(TermbackBundle.message("notification.action.show")) {
-                if (session.project.isDisposed) {
-                    notification.expire()
-                    return@createSimple
-                }
-
-                val toolWindow = session.project.getTerminalToolWindow() ?: return@createSimple
-
-                if (session.content !in toolWindow.contentManager.contentsRecursively) {
-                    notification.expire()
-                    return@createSimple
-                }
-
-                WindowManager.getInstance().getFrame(session.project)?.toFront()
-                toolWindow.show()
-                toolWindow.contentManager.setSelectedContentCB(session.content, true, true)
-
-                session
-                    .takeSuppressedNotifications(TermbackTabState.VISIBLE_ACTIVE)
-                    .forEach { it.expire() }
+                session.navigateToTab()
             },
         )
 

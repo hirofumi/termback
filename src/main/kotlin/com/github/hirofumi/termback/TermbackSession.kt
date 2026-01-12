@@ -2,7 +2,9 @@ package com.github.hirofumi.termback
 
 import com.intellij.notification.Notification
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.wm.WindowManager
 import com.intellij.ui.content.Content
+import com.intellij.util.concurrency.annotations.RequiresEdt
 import java.lang.ref.WeakReference
 
 /**
@@ -15,6 +17,34 @@ class TermbackSession(
 ) {
     val id = TermbackSessionId.generate()
     private val notifications = mutableListOf<NotificationEntry>()
+
+    /**
+     * Navigates to this session's terminal tab and expires suppressed notifications.
+     *
+     * @return true if the tab was successfully activated, false otherwise.
+     */
+    @RequiresEdt
+    fun navigateToTab(): Boolean {
+        if (!activateTab()) return false
+
+        takeSuppressedNotifications(TermbackTabState.VISIBLE_ACTIVE)
+            .forEach { it.expire() }
+
+        return true
+    }
+
+    @RequiresEdt
+    private fun activateTab(): Boolean {
+        if (project.isDisposed) return false
+        val toolWindow = project.getTerminalToolWindow() ?: return false
+        if (content !in toolWindow.contentManager.contentsRecursively) return false
+
+        WindowManager.getInstance().getFrame(project)?.toFront()
+        toolWindow.show()
+        toolWindow.contentManager.setSelectedContentCB(content, true, true)
+
+        return true
+    }
 
     fun addNotification(
         notification: Notification,
