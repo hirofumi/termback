@@ -1,11 +1,14 @@
 # termback
 
 <!-- Plugin description -->
-Send notifications from terminal processes to IntelliJ IDE.
-
-Each terminal tab is assigned a unique session ID exposed via environment variables.
-Scripts can send HTTP requests to display IDE notifications and focus the originating tab.
+Bridges between IntelliJ IDEA's integrated terminal and its notification system. Terminal processes can send notifications via a local HTTP endpoint, and clicking one focuses the tab that sent it.
 <!-- Plugin description end -->
+
+## Features
+
+- Exposes a local HTTP endpoint for terminal processes to send IDE notifications
+- Focuses the terminal tab on notification click
+- Automatically suppresses notifications when the tab is already active or visible
 
 ## Requirements
 
