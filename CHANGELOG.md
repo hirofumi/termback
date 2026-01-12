@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Keyboard shortcut (Alt+Shift+T) to pick a notification and jump to its terminal tab
+
 ## [0.0.1] - 2026-01-04
 
 ### Added

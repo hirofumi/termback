@@ -12,7 +12,22 @@
     <extensions defaultExtensionNs="com.intellij">
         <notificationGroup id="com.github.hirofumi.termback" displayType="STICKY_BALLOON"/>
         <httpRequestHandler implementation="com.github.hirofumi.termback.TermbackRestService"/>
+        <applicationConfigurable
+            parentId="tools"
+            instance="com.github.hirofumi.termback.TermbackSettingsConfigurable"
+            id="com.github.hirofumi.termback.settings"
+            displayName="Termback"/>
     </extensions>
+
+    <actions>
+        <action
+            id="com.github.hirofumi.termback.SelectNotification"
+            class="com.github.hirofumi.termback.TermbackSelectNotificationAction"
+            text="Select Termback Notification"
+            description="Show popup to select and jump to a terminal notification">
+            <keyboard-shortcut keymap="$default" first-keystroke="alt shift T"/>
+        </action>
+    </actions>
 
     <extensions defaultExtensionNs="org.jetbrains.plugins.terminal">
         <localTerminalCustomizer implementation="com.github.hirofumi.termback.TermbackLocalTerminalCustomizer"/>

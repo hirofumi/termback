@@ -36,6 +36,12 @@ class TermbackNotification private constructor(
         entries.forEach { it.notification.get()?.expire() }
     }
 
+    /**
+     * Returns the title as displayed in [targetProject].
+     * If the notification originated from a different project, the title is prefixed with the source project name.
+     */
+    fun titleFor(targetProject: Project): String = formatTitle(title, session.project, targetProject)
+
     companion object {
         private const val GROUP_ID = "com.github.hirofumi.termback"
 
@@ -50,12 +56,7 @@ class TermbackNotification private constructor(
         ): TermbackNotification {
             val entries =
                 targetProjects.map { targetProject ->
-                    val title =
-                        if (targetProject == session.project) {
-                            baseTitle
-                        } else {
-                            "[${session.project.name}] $baseTitle"
-                        }
+                    val title = formatTitle(baseTitle, session.project, targetProject)
                     val raw = createRawNotification(title, message)
                     raw.addAction(
                         NotificationAction.createSimple(TermbackBundle.message("notification.action.show")) {
@@ -84,3 +85,14 @@ class TermbackNotification private constructor(
         val notification: WeakReference<Notification>,
     )
 }
+
+private fun formatTitle(
+    title: String,
+    sourceProject: Project,
+    targetProject: Project,
+): String =
+    if (sourceProject == targetProject) {
+        title
+    } else {
+        "[${sourceProject.name}] $title"
+    }
