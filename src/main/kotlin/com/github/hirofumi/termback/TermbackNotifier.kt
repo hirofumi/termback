@@ -1,9 +1,5 @@
 package com.github.hirofumi.termback
 
-import com.intellij.notification.Notification
-import com.intellij.notification.NotificationAction
-import com.intellij.notification.NotificationGroupManager
-import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
@@ -26,31 +22,23 @@ class TermbackNotifier {
 
         ApplicationManager.getApplication().invokeLater({
             if (shouldSkipNotification(session, request.suppress)) return@invokeLater
-            if (session.content.manager == null) return@invokeLater // Content was disposed
 
             val title = request.title ?: session.content.displayName
 
             val targetProjects =
                 if (request.broadcast) {
-                    ProjectManager.getInstance().availableProjects
+                    ProjectManager.getInstance().availableProjects.toList()
                 } else {
                     listOf(session.project)
                 }
 
-            session
-                .takeExpiredByNext()
-                .forEach { it.expire() }
-
-            targetProjects.forEach { targetProject ->
-                val notification =
-                    createNotification(
-                        session,
-                        if (targetProject == session.project) title else "[${session.project.name}] $title",
-                        request.message,
-                    )
-                session.addNotification(notification, request.suppress, request.onNext)
-                notification.notify(targetProject)
-            }
+            session.postNotification(
+                title = title,
+                message = request.message,
+                suppress = request.suppress,
+                onNext = request.onNext,
+                targetProjects = targetProjects,
+            )
         }, session.project.disposed)
 
         return NotifyResult.Accepted
@@ -79,26 +67,6 @@ class TermbackNotifier {
         if (!frame.isActive) return false
         val toolWindow = session.project.getTerminalToolWindow() ?: return false
         return suppress.matches(toolWindow.getTabState(session.content))
-    }
-
-    private fun createNotification(
-        session: TermbackSession,
-        title: String,
-        message: String,
-    ): Notification {
-        val notification =
-            NotificationGroupManager
-                .getInstance()
-                .getNotificationGroup("com.github.hirofumi.termback")
-                .createNotification(title, message, NotificationType.INFORMATION)
-
-        notification.addAction(
-            NotificationAction.createSimple(TermbackBundle.message("notification.action.show")) {
-                session.navigateToTab()
-            },
-        )
-
-        return notification
     }
 
     companion object {
