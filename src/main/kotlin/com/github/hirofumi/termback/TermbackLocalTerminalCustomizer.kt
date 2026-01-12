@@ -4,11 +4,9 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Computable
 import com.intellij.openapi.util.Disposer
-import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.platform.eel.EelDescriptor
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.terminal.LocalTerminalCustomizer
-import org.jetbrains.plugins.terminal.TerminalToolWindowFactory
 
 private val LOG = logger<TermbackLocalTerminalCustomizer>()
 
@@ -24,10 +22,7 @@ class TermbackLocalTerminalCustomizer : LocalTerminalCustomizer() {
         val content =
             UIUtil.invokeAndWaitIfNeeded(
                 Computable {
-                    val toolWindow =
-                        ToolWindowManager
-                            .getInstance(project)
-                            .getToolWindow(TerminalToolWindowFactory.TOOL_WINDOW_ID) ?: return@Computable null
+                    val toolWindow = project.getTerminalToolWindow() ?: return@Computable null
                     toolWindow.contentManager.contentsRecursively.find { content ->
                         toolWindow.getTabState(content) == TermbackTabState.VISIBLE_ACTIVE
                     } ?: toolWindow.contentManager.contentsRecursively.findLast { content ->

@@ -8,10 +8,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
-import com.intellij.openapi.wm.ToolWindow
-import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.openapi.wm.WindowManager
-import org.jetbrains.plugins.terminal.TerminalToolWindowFactory
 
 @Service(Service.Level.APP)
 class TermbackNotifier {
@@ -65,7 +62,7 @@ class TermbackNotifier {
 
     fun expireSuppressedNotifications(project: Project) {
         ApplicationManager.getApplication().invokeLater({
-            val toolWindow = getTerminalToolWindow(project) ?: return@invokeLater
+            val toolWindow = project.getTerminalToolWindow() ?: return@invokeLater
             for (content in toolWindow.contentManager.contentsRecursively) {
                 val session = TermbackSessionRegistry.getInstance().findByContent(content) ?: continue
                 val state = toolWindow.getTabState(content)
@@ -80,7 +77,7 @@ class TermbackNotifier {
     ): Boolean {
         val frame = WindowManager.getInstance().getFrame(session.project) ?: return false
         if (!frame.isActive) return false
-        val toolWindow = getTerminalToolWindow(session.project) ?: return false
+        val toolWindow = session.project.getTerminalToolWindow() ?: return false
         return suppress.matches(toolWindow.getTabState(session.content))
     }
 
@@ -102,7 +99,7 @@ class TermbackNotifier {
                     return@createSimple
                 }
 
-                val toolWindow = getTerminalToolWindow(session.project) ?: return@createSimple
+                val toolWindow = session.project.getTerminalToolWindow() ?: return@createSimple
 
                 if (session.content !in toolWindow.contentManager.contentsRecursively) {
                     notification.expire()
@@ -121,9 +118,6 @@ class TermbackNotifier {
 
         return notification
     }
-
-    private fun getTerminalToolWindow(project: Project): ToolWindow? =
-        ToolWindowManager.getInstance(project).getToolWindow(TerminalToolWindowFactory.TOOL_WINDOW_ID)
 
     companion object {
         fun getInstance(): TermbackNotifier = ApplicationManager.getApplication().getService(TermbackNotifier::class.java)
