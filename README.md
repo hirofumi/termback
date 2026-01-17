@@ -9,6 +9,7 @@ Bridges between IntelliJ IDEA's integrated terminal and its notification system.
 - Exposes a local HTTP endpoint for terminal processes to send IDE notifications
 - Focuses the terminal tab on notification click
 - Automatically suppresses notifications when the tab is already active or visible
+- Provides a keyboard shortcut to pick a notification and jump to its terminal tab
 
 ## Requirements
 
@@ -33,6 +34,8 @@ Send a notification:
 ```bash
 curl -fsS --json "$(jq -n --arg msg "Done" '{sessionId: env.TERMBACK_SESSION_ID, message: $msg}')" "$TERMBACK_ENDPOINT"
 ```
+
+Press `Alt+Shift+T` (default) to pick a notification and jump to its terminal tab.
 
 ### Examples
 
