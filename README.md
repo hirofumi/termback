@@ -21,22 +21,22 @@ Bridges between IntelliJ IDEA's integrated terminal and its notification system.
 
 ## Usage
 
-### Environment Variables
-
-When you open a new terminal tab, the following environment variables are set:
+When you open a terminal tab in IntelliJ, the plugin sets:
 
 | Variable | Description |
 |----------|-------------|
 | `TERMBACK_ENDPOINT` | Notification endpoint URL |
 | `TERMBACK_SESSION_ID` | UUID identifying the tab |
 
-### Sending Notifications
+Send a notification:
 
 ```bash
 curl -fsS --json "$(jq -n --arg msg "Done" '{sessionId: env.TERMBACK_SESSION_ID, message: $msg}')" "$TERMBACK_ENDPOINT"
 ```
 
-### Shell Function
+### Examples
+
+#### Shell Function
 
 ```bash
 termback() {
@@ -48,7 +48,7 @@ termback() {
 ./build.sh && termback "Build completed"
 ```
 
-### Claude Code Hooks
+#### Claude Code Hooks
 
 Add to `.claude/settings.json` to receive IDE notifications when Claude Code is waiting for input:
 
