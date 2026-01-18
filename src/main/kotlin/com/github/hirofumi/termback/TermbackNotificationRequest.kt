@@ -9,7 +9,6 @@ data class TermbackNotificationRequest(
     val sessionId: TermbackSessionId,
     val message: String,
     val title: String? = null,
-    val broadcast: Boolean = true,
     val suppress: Suppress = Suppress.WHEN_ACTIVE,
     val onNext: OnNext = OnNext.EXPIRE,
 ) {

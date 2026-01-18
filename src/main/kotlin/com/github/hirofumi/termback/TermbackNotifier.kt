@@ -24,13 +24,7 @@ class TermbackNotifier {
             if (shouldSkipNotification(session, request.suppress)) return@invokeLater
 
             val title = request.title ?: session.content.displayName
-
-            val targetProjects =
-                if (request.broadcast) {
-                    ProjectManager.getInstance().availableProjects.toList()
-                } else {
-                    listOf(session.project)
-                }
+            val targetProjects = ProjectManager.getInstance().availableProjects.toList()
 
             session.postNotification(
                 title = title,

@@ -84,7 +84,6 @@ class TermbackNotifierTest {
                 sessionId = session.id,
                 message = "Test message",
                 title = "Custom Title",
-                broadcast = false,
                 suppress = Suppress.NONE,
                 onNext = OnNext.KEEP,
             )

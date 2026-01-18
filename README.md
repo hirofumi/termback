@@ -86,7 +86,6 @@ Add to `.claude/settings.json` to receive IDE notifications when Claude Code is 
 | `sessionId` | string | ✓ | | Tab session ID |
 | `message` | string | ✓ | | Notification body |
 | `title` | string | | `null` | Notification title |
-| `broadcast` | boolean | | `true` | true: all projects, false: session's project only |
 | `suppress` | string | | `"whenActive"` | Suppress condition |
 | `onNext` | string | | `"expire"` | Behavior on next notification |
 

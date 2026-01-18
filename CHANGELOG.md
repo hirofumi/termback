@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Removed
+
+- **Breaking:** `broadcast` field (notifications now target all projects)
+
 ## [0.0.2] - 2026-01-16
 
 ### Added

@@ -30,7 +30,6 @@ class TermbackNotificationRequestTest {
                 "sessionId": "abc-123",
                 "message": "Hello",
                 "title": "Test Title",
-                "broadcast": true,
                 "suppress": "none",
                 "onNext": "keep"
             }
@@ -42,7 +41,6 @@ class TermbackNotificationRequestTest {
         assertEquals("abc-123", request.sessionId.value)
         assertEquals("Hello", request.message)
         assertEquals("Test Title", request.title)
-        assertEquals(true, request.broadcast)
         assertEquals(Suppress.NONE, request.suppress)
         assertEquals(OnNext.KEEP, request.onNext)
     }
@@ -154,16 +152,6 @@ class TermbackNotificationRequestTest {
         assertTrue(result is ParseResult.Success)
         val request = (result as ParseResult.Success).request
         assertNull(request.title)
-    }
-
-    @Test
-    fun `default broadcast is true`() {
-        val json = """{"sessionId":"abc-123","message":"Hello"}"""
-        val result = TermbackNotificationRequest.parse(json)
-
-        assertTrue(result is ParseResult.Success)
-        val request = (result as ParseResult.Success).request
-        assertEquals(true, request.broadcast)
     }
 
     @Test
