@@ -73,6 +73,12 @@ Add to `.claude/settings.json` to receive IDE notifications when Claude Code is 
 }
 ```
 
+## Settings
+
+| Setting | Description |
+|---------|-------------|
+| Skip popup when single | Skip notification picker when only one exists |
+
 ## API
 
 ### Endpoint
