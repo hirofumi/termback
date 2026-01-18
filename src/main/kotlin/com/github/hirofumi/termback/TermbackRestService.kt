@@ -1,6 +1,8 @@
 package com.github.hirofumi.termback
 
-import com.github.hirofumi.termback.TermbackNotifier.NotifyResult
+import com.github.hirofumi.termback.notification.TermbackNotificationRequest
+import com.github.hirofumi.termback.notification.TermbackNotifier
+import com.github.hirofumi.termback.notification.TermbackNotifier.NotifyResult
 import io.netty.channel.ChannelHandlerContext
 import io.netty.handler.codec.http.FullHttpRequest
 import io.netty.handler.codec.http.HttpMethod

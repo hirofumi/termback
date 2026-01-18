@@ -1,15 +1,14 @@
 package com.github.hirofumi.termback
 
-import com.github.hirofumi.termback.TermbackNotificationRequest.OnNext
-import com.github.hirofumi.termback.TermbackNotificationRequest.Suppress
+import com.github.hirofumi.termback.notification.TermbackNotification
+import com.github.hirofumi.termback.notification.TermbackNotificationHandle
+import com.github.hirofumi.termback.notification.TermbackNotificationRequest.OnNext
+import com.github.hirofumi.termback.notification.TermbackNotificationRequest.Suppress
 import com.intellij.openapi.project.Project
 import com.intellij.ui.content.Content
 import com.intellij.ui.content.ContentManager
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkObject
-import io.mockk.unmockkObject
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -21,7 +20,6 @@ class TermbackSessionTest {
     private lateinit var project: Project
     private lateinit var content: Content
     private lateinit var contentManager: ContentManager
-    private val createdNotifications = mutableListOf<TermbackNotification>()
 
     @Before
     fun setUp() {
@@ -30,99 +28,96 @@ class TermbackSessionTest {
         contentManager = mockk()
         every { content.manager } returns contentManager
         session = TermbackSession(project, content)
-
-        mockkObject(TermbackNotification)
-        every {
-            TermbackNotification.create(any(), any(), any(), any(), any(), any())
-        } answers {
-            val suppress = arg<Suppress>(3)
-            val onNext = arg<OnNext>(4)
-            createMockNotification(suppress, onNext).also { createdNotifications.add(it) }
-        }
-    }
-
-    @After
-    fun tearDown() {
-        unmockkObject(TermbackNotification)
-        createdNotifications.clear()
     }
 
     private fun createMockNotification(
         suppress: Suppress = Suppress.WHEN_ACTIVE,
         onNext: OnNext = OnNext.EXPIRE,
-    ): TermbackNotification {
-        val notification = mockk<TermbackNotification>(relaxed = true)
+        isExpired: Boolean = false,
+    ): TermbackNotificationHandle {
+        val notification = mockk<TermbackNotification>()
         every { notification.session } returns session
         every { notification.suppress } returns suppress
         every { notification.onNext } returns onNext
-        every { notification.isExpired } returns false
-        return notification
-    }
 
-    private fun postNotification(
-        suppress: Suppress = Suppress.WHEN_ACTIVE,
-        onNext: OnNext = OnNext.KEEP,
-    ) {
-        session.postNotification("title", "message", suppress, onNext, listOf(project))
+        val handle = mockk<TermbackNotificationHandle>(relaxed = true)
+        every { handle.notification } returns notification
+        every { handle.isExpired() } returns isExpired
+        return handle
     }
 
     @Test
-    fun `postNotification stores notification`() {
-        postNotification()
+    fun `addNotification stores notification`() {
+        val handle = createMockNotification()
+        session.addNotification(handle)
 
         val result = session.takeAllNotifications()
         assertEquals(1, result.size)
-        assertEquals(createdNotifications.first(), result.first())
+        assertEquals(handle, result.first())
     }
 
     @Test
-    fun `postNotification removes previous EXPIRE notifications from session`() {
-        postNotification(onNext = OnNext.EXPIRE)
-        val firstNotification = createdNotifications.first()
+    fun `takeExpiredByNext returns EXPIRE notifications`() {
+        val expireHandle = createMockNotification(onNext = OnNext.EXPIRE)
+        val keepHandle = createMockNotification(onNext = OnNext.KEEP)
+        session.addNotification(expireHandle)
+        session.addNotification(keepHandle)
 
-        postNotification(onNext = OnNext.KEEP)
+        val result = session.takeExpiredByNext()
+
+        assertEquals(1, result.size)
+        assertEquals(expireHandle, result.first())
+    }
+
+    @Test
+    fun `takeExpiredByNext preserves KEEP notifications`() {
+        val expireHandle = createMockNotification(onNext = OnNext.EXPIRE)
+        val keepHandle = createMockNotification(onNext = OnNext.KEEP)
+        session.addNotification(expireHandle)
+        session.addNotification(keepHandle)
+
+        session.takeExpiredByNext()
 
         val remaining = session.takeAllNotifications()
-        assertFalse(remaining.contains(firstNotification))
-    }
-
-    @Test
-    fun `postNotification preserves previous KEEP notifications`() {
-        postNotification(onNext = OnNext.KEEP)
-        postNotification(onNext = OnNext.KEEP)
-
-        val result = session.takeAllNotifications()
-        assertEquals(2, result.size)
+        assertEquals(1, remaining.size)
+        assertEquals(keepHandle, remaining.first())
     }
 
     @Test
     fun `takeSuppressedNotifications with VISIBLE_ACTIVE returns WHEN_ACTIVE and WHEN_VISIBLE notifications`() {
-        postNotification(suppress = Suppress.WHEN_ACTIVE)
-        postNotification(suppress = Suppress.WHEN_VISIBLE)
-        postNotification(suppress = Suppress.NONE)
+        val activeHandle = createMockNotification(suppress = Suppress.WHEN_ACTIVE)
+        val visibleHandle = createMockNotification(suppress = Suppress.WHEN_VISIBLE)
+        val noneHandle = createMockNotification(suppress = Suppress.NONE)
+        session.addNotification(activeHandle)
+        session.addNotification(visibleHandle)
+        session.addNotification(noneHandle)
 
         val result = session.takeSuppressedNotifications(TermbackTabState.VISIBLE_ACTIVE)
 
         assertEquals(2, result.size)
-        assertTrue(result.any { it.suppress == Suppress.WHEN_ACTIVE })
-        assertTrue(result.any { it.suppress == Suppress.WHEN_VISIBLE })
+        assertTrue(result.any { it.notification.suppress == Suppress.WHEN_ACTIVE })
+        assertTrue(result.any { it.notification.suppress == Suppress.WHEN_VISIBLE })
     }
 
     @Test
     fun `takeSuppressedNotifications with VISIBLE_INACTIVE returns WHEN_VISIBLE notifications`() {
-        postNotification(suppress = Suppress.WHEN_ACTIVE)
-        postNotification(suppress = Suppress.WHEN_VISIBLE)
-        postNotification(suppress = Suppress.NONE)
+        val activeHandle = createMockNotification(suppress = Suppress.WHEN_ACTIVE)
+        val visibleHandle = createMockNotification(suppress = Suppress.WHEN_VISIBLE)
+        val noneHandle = createMockNotification(suppress = Suppress.NONE)
+        session.addNotification(activeHandle)
+        session.addNotification(visibleHandle)
+        session.addNotification(noneHandle)
 
         val result = session.takeSuppressedNotifications(TermbackTabState.VISIBLE_INACTIVE)
 
         assertEquals(1, result.size)
-        assertEquals(Suppress.WHEN_VISIBLE, result.first().suppress)
+        assertEquals(Suppress.WHEN_VISIBLE, result.first().notification.suppress)
     }
 
     @Test
     fun `takeSuppressedNotifications with NOT_VISIBLE returns empty list`() {
-        postNotification(suppress = Suppress.WHEN_ACTIVE)
+        val handle = createMockNotification(suppress = Suppress.WHEN_ACTIVE)
+        session.addNotification(handle)
 
         val result = session.takeSuppressedNotifications(TermbackTabState.NOT_VISIBLE)
 
@@ -131,7 +126,9 @@ class TermbackSessionTest {
 
     @Test
     fun `takeSuppressedNotifications removes returned notifications`() {
-        postNotification(suppress = Suppress.WHEN_ACTIVE)
+        val handle = createMockNotification(suppress = Suppress.WHEN_ACTIVE)
+        session.addNotification(handle)
+
         session.takeSuppressedNotifications(TermbackTabState.VISIBLE_ACTIVE)
 
         val remaining = session.takeAllNotifications()
@@ -140,20 +137,24 @@ class TermbackSessionTest {
 
     @Test
     fun `takeSuppressedNotifications preserves non-matching notifications`() {
-        postNotification(suppress = Suppress.WHEN_ACTIVE)
-        postNotification(suppress = Suppress.NONE)
+        val activeHandle = createMockNotification(suppress = Suppress.WHEN_ACTIVE)
+        val noneHandle = createMockNotification(suppress = Suppress.NONE)
+        session.addNotification(activeHandle)
+        session.addNotification(noneHandle)
 
         session.takeSuppressedNotifications(TermbackTabState.VISIBLE_ACTIVE)
 
         val remaining = session.takeAllNotifications()
         assertEquals(1, remaining.size)
-        assertEquals(Suppress.NONE, remaining.first().suppress)
+        assertEquals(Suppress.NONE, remaining.first().notification.suppress)
     }
 
     @Test
     fun `takeAllNotifications returns all notifications`() {
-        postNotification(suppress = Suppress.WHEN_ACTIVE)
-        postNotification(suppress = Suppress.WHEN_VISIBLE)
+        val handle1 = createMockNotification(suppress = Suppress.WHEN_ACTIVE)
+        val handle2 = createMockNotification(suppress = Suppress.WHEN_VISIBLE)
+        session.addNotification(handle1)
+        session.addNotification(handle2)
 
         val result = session.takeAllNotifications()
 
@@ -162,10 +163,24 @@ class TermbackSessionTest {
 
     @Test
     fun `takeAllNotifications clears the list`() {
-        postNotification()
+        val handle = createMockNotification()
+        session.addNotification(handle)
         session.takeAllNotifications()
 
         val result = session.takeAllNotifications()
         assertTrue(result.isEmpty())
+    }
+
+    @Test
+    fun `getUnexpiredNotifications filters out expired notifications`() {
+        val unexpiredHandle = createMockNotification(isExpired = false)
+        val expiredHandle = createMockNotification(isExpired = true)
+        session.addNotification(unexpiredHandle)
+        session.addNotification(expiredHandle)
+
+        val result = session.getUnexpiredNotifications()
+
+        assertEquals(1, result.size)
+        assertFalse(result.first().isExpired())
     }
 }

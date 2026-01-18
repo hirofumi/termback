@@ -1,8 +1,8 @@
-package com.github.hirofumi.termback
+package com.github.hirofumi.termback.notification
 
-import com.github.hirofumi.termback.TermbackNotificationRequest.OnNext
-import com.github.hirofumi.termback.TermbackNotificationRequest.ParseResult
-import com.github.hirofumi.termback.TermbackNotificationRequest.Suppress
+import com.github.hirofumi.termback.notification.TermbackNotificationRequest.OnNext
+import com.github.hirofumi.termback.notification.TermbackNotificationRequest.ParseResult
+import com.github.hirofumi.termback.notification.TermbackNotificationRequest.Suppress
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue

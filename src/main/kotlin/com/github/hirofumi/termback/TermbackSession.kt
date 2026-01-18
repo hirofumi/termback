@@ -1,5 +1,7 @@
 package com.github.hirofumi.termback
 
+import com.github.hirofumi.termback.notification.TermbackNotificationHandle
+import com.github.hirofumi.termback.notification.TermbackNotificationRequest
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.ui.content.Content
@@ -14,7 +16,7 @@ class TermbackSession(
     val content: Content,
 ) {
     val id = TermbackSessionId.generate()
-    private val notifications = mutableListOf<TermbackNotification>()
+    private val handles = mutableListOf<TermbackNotificationHandle>()
 
     /**
      * Navigates to this session's terminal tab and expires suppressed notifications.
@@ -44,62 +46,40 @@ class TermbackSession(
         return true
     }
 
-    @RequiresEdt
-    fun postNotification(
-        title: String,
-        message: String,
-        suppress: TermbackNotificationRequest.Suppress,
-        onNext: TermbackNotificationRequest.OnNext,
-        targetProjects: List<Project>,
-    ) {
-        if (content.manager == null) return
-
-        takeExpiredByNext().forEach { it.expire() }
-
-        val notification =
-            TermbackNotification.create(
-                session = this,
-                baseTitle = title,
-                message = message,
-                suppress = suppress,
-                onNext = onNext,
-                targetProjects = targetProjects,
-            )
-
-        synchronized(notifications) {
-            notifications.add(notification)
+    fun addNotification(handle: TermbackNotificationHandle) {
+        synchronized(handles) {
+            handles.add(handle)
         }
-
-        notification.post()
     }
 
-    fun getUnexpiredNotifications(): List<TermbackNotification> {
-        synchronized(notifications) {
+    fun getUnexpiredNotifications(): List<TermbackNotificationHandle> {
+        synchronized(handles) {
             // Reuse cleanup logic from takeNotificationsIf; predicate=false means nothing is taken.
             // Removal of already-expired entries is not an observable side effect.
             takeNotificationsIf { false }
 
-            return notifications.toList()
+            return handles.toList()
         }
     }
 
-    fun takeAllNotifications(): List<TermbackNotification> = takeNotificationsIf { true }
+    fun takeAllNotifications(): List<TermbackNotificationHandle> = takeNotificationsIf { true }
 
-    fun takeSuppressedNotifications(state: TermbackTabState): List<TermbackNotification> =
-        takeNotificationsIf { it.suppress.matches(state) }
+    fun takeSuppressedNotifications(state: TermbackTabState): List<TermbackNotificationHandle> =
+        takeNotificationsIf { it.notification.suppress.matches(state) }
 
-    fun takeExpiredByNext(): List<TermbackNotification> = takeNotificationsIf { it.onNext == TermbackNotificationRequest.OnNext.EXPIRE }
+    fun takeExpiredByNext(): List<TermbackNotificationHandle> =
+        takeNotificationsIf { it.notification.onNext == TermbackNotificationRequest.OnNext.EXPIRE }
 
-    private fun takeNotificationsIf(predicate: (TermbackNotification) -> Boolean): List<TermbackNotification> {
-        synchronized(notifications) {
-            val result = mutableListOf<TermbackNotification>()
-            val iterator = notifications.iterator()
+    private fun takeNotificationsIf(predicate: (TermbackNotificationHandle) -> Boolean): List<TermbackNotificationHandle> {
+        synchronized(handles) {
+            val result = mutableListOf<TermbackNotificationHandle>()
+            val iterator = handles.iterator()
             while (iterator.hasNext()) {
-                val entry = iterator.next()
-                if (entry.isExpired) {
+                val handle = iterator.next()
+                if (handle.isExpired()) {
                     iterator.remove()
-                } else if (predicate(entry)) {
-                    result.add(entry)
+                } else if (predicate(handle)) {
+                    result.add(handle)
                     iterator.remove()
                 }
             }

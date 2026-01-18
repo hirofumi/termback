@@ -1,9 +1,12 @@
-package com.github.hirofumi.termback
+package com.github.hirofumi.termback.notification
 
+import com.github.hirofumi.termback.TermbackSession
+import com.github.hirofumi.termback.TermbackSessionRegistry
+import com.github.hirofumi.termback.getTabState
+import com.github.hirofumi.termback.getTerminalToolWindow
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.wm.WindowManager
 
 @Service(Service.Level.APP)
@@ -22,17 +25,20 @@ class TermbackNotifier {
 
         ApplicationManager.getApplication().invokeLater({
             if (shouldSkipNotification(session, request.suppress)) return@invokeLater
+            if (session.content.manager == null) return@invokeLater
 
-            val title = request.title ?: session.content.displayName
-            val targetProjects = ProjectManager.getInstance().availableProjects.toList()
+            session.takeExpiredByNext().forEach { it.expire() }
 
-            session.postNotification(
-                title = title,
-                message = request.message,
-                suppress = request.suppress,
-                onNext = request.onNext,
-                targetProjects = targetProjects,
-            )
+            val notification =
+                TermbackNotification(
+                    session = session,
+                    title = request.title ?: session.content.displayName,
+                    message = request.message,
+                    suppress = request.suppress,
+                    onNext = request.onNext,
+                )
+
+            session.addNotification(TermbackNotificationChannel.getInstance().post(notification))
         }, session.project.disposed)
 
         return NotifyResult.Accepted

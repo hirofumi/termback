@@ -1,5 +1,6 @@
 package com.github.hirofumi.termback
 
+import com.github.hirofumi.termback.notification.TermbackNotificationHandle
 import com.intellij.icons.AllIcons
 import com.intellij.ide.RecentProjectIconHelper
 import com.intellij.openapi.actionSystem.ActionUpdateThread
@@ -28,13 +29,13 @@ class TermbackSelectNotificationAction : DumbAwareAction() {
     }
 
     override fun actionPerformed(e: AnActionEvent) {
-        val notifications = collectUnexpiredNotifications()
-        if (notifications.isEmpty()) return
+        val handles = collectUnexpiredNotifications()
+        if (handles.isEmpty()) return
 
         val skipPopup = TermbackSettings.getInstance().state.skipPopupWhenSingleNotification
-        if (notifications.size == 1 && skipPopup) {
+        if (handles.size == 1 && skipPopup) {
             // actionPerformed may run on BGT; navigateToTab requires EDT.
-            UIUtil.invokeLaterIfNeeded { navigateToNotification(notifications.first()) }
+            UIUtil.invokeLaterIfNeeded { navigateToNotification(handles.first()) }
             return
         }
 
@@ -43,7 +44,7 @@ class TermbackSelectNotificationAction : DumbAwareAction() {
         val builder =
             JBPopupFactory
                 .getInstance()
-                .createPopupChooserBuilder(notifications)
+                .createPopupChooserBuilder(handles)
                 .setTitle(TermbackBundle.message("popup.title"))
                 .setRenderer(TermbackNotificationCellRenderer(project))
                 .setItemChosenCallback { navigateToNotification(it) }
@@ -67,20 +68,20 @@ class TermbackSelectNotificationAction : DumbAwareAction() {
         builder.createPopup().showCenteredInCurrentWindow(project)
     }
 
-    private fun collectUnexpiredNotifications(): List<TermbackNotification> =
+    private fun collectUnexpiredNotifications(): List<TermbackNotificationHandle> =
         TermbackSessionRegistry
             .getInstance()
             .getAllSessions()
             .flatMap { it.getUnexpiredNotifications() }
 
-    private fun navigateToNotification(notification: TermbackNotification) {
-        notification.session.navigateToTab()
+    private fun navigateToNotification(handle: TermbackNotificationHandle) {
+        handle.notification.session.navigateToTab()
     }
 }
 
 private class TermbackNotificationCellRenderer(
     private val targetProject: Project,
-) : ListCellRenderer<TermbackNotification> {
+) : ListCellRenderer<TermbackNotificationHandle> {
     private val panel = JPanel(BorderLayout(JBUI.scale(8), 0))
     private val iconLabel = JBLabel()
     private val textPanel = JPanel(BorderLayout())
@@ -102,13 +103,13 @@ private class TermbackNotificationCellRenderer(
     }
 
     override fun getListCellRendererComponent(
-        list: JList<out TermbackNotification>,
-        value: TermbackNotification,
+        list: JList<out TermbackNotificationHandle>,
+        value: TermbackNotificationHandle,
         index: Int,
         isSelected: Boolean,
         cellHasFocus: Boolean,
     ): Component {
-        val project = value.session.project
+        val project = value.notification.session.project
         val projectPath = project.basePath
 
         iconLabel.icon =
@@ -118,8 +119,8 @@ private class TermbackNotificationCellRenderer(
                 AllIcons.Nodes.IdeaProject
             }
 
-        titleLabel.text = value.titleFor(targetProject)
-        messageLabel.text = value.message.ifEmpty { null }
+        titleLabel.text = value.notification.titleFor(targetProject)
+        messageLabel.text = value.notification.message.ifEmpty { null }
 
         if (isSelected) {
             panel.background = list.selectionBackground
