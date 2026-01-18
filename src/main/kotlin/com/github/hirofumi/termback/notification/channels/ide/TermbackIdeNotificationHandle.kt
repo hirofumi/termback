@@ -8,22 +8,22 @@ import com.intellij.notification.Notification
 import com.intellij.notification.NotificationAction
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.util.concurrency.annotations.RequiresEdt
 import java.lang.ref.WeakReference
 
 internal class TermbackIdeNotificationHandle private constructor(
     override val notification: TermbackNotification,
-    private val entries: List<Entry>,
+    /** WeakReference allows GC if notification is expired externally. */
+    private val ideNotifications: List<WeakReference<Notification>>,
 ) : TermbackNotificationHandle {
     /**
      * Returns true if all notifications have been expired or GC'd.
      */
-    override fun isExpired(): Boolean = entries.all { it.ideNotificationRef.get()?.isExpired != false }
+    override fun isExpired(): Boolean = ideNotifications.all { it.get()?.isExpired != false }
 
     override fun expire() {
-        entries.forEach { it.ideNotificationRef.get()?.expire() }
+        ideNotifications.forEach { it.get()?.expire() }
     }
 
     companion object {
@@ -31,26 +31,23 @@ internal class TermbackIdeNotificationHandle private constructor(
 
         @RequiresEdt
         fun postToIde(notification: TermbackNotification): TermbackIdeNotificationHandle {
-            val entries =
+            val ideNotifications =
                 ProjectManager.getInstance().availableProjects.map { targetProject ->
-                    val ideNotification = createIdeNotification(targetProject, notification)
+                    val ideNotification = createIdeNotification(notification)
                     ideNotification.notify(targetProject)
-                    Entry(targetProject, WeakReference(ideNotification))
+                    WeakReference(ideNotification)
                 }
 
-            return TermbackIdeNotificationHandle(notification, entries)
+            return TermbackIdeNotificationHandle(notification, ideNotifications)
         }
 
         @RequiresEdt
-        private fun createIdeNotification(
-            targetProject: Project,
-            notification: TermbackNotification,
-        ): Notification {
+        private fun createIdeNotification(notification: TermbackNotification): Notification {
             val ideNotification =
                 NotificationGroupManager
                     .getInstance()
                     .getNotificationGroup(GROUP_ID)
-                    .createNotification(notification.titleFor(targetProject), notification.message, NotificationType.INFORMATION)
+                    .createNotification(notification.displayTitle, notification.message, NotificationType.INFORMATION)
 
             ideNotification.addAction(
                 NotificationAction.createSimple(TermbackBundle.message("notification.action.show")) {
@@ -61,10 +58,4 @@ internal class TermbackIdeNotificationHandle private constructor(
             return ideNotification
         }
     }
-
-    private data class Entry(
-        val project: Project,
-        /** WeakReference allows GC if notification is expired externally. */
-        val ideNotificationRef: WeakReference<Notification>,
-    )
 }

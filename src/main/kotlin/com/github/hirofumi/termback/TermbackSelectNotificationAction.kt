@@ -46,7 +46,7 @@ class TermbackSelectNotificationAction : DumbAwareAction() {
                 .getInstance()
                 .createPopupChooserBuilder(handles)
                 .setTitle(TermbackBundle.message("popup.title"))
-                .setRenderer(TermbackNotificationCellRenderer(project))
+                .setRenderer(TermbackNotificationCellRenderer())
                 .setItemChosenCallback { navigateToNotification(it) }
                 .setRequestFocus(true)
                 .setMinSize(JBUI.size(400, 200))
@@ -79,9 +79,7 @@ class TermbackSelectNotificationAction : DumbAwareAction() {
     }
 }
 
-private class TermbackNotificationCellRenderer(
-    private val targetProject: Project,
-) : ListCellRenderer<TermbackNotificationHandle> {
+private class TermbackNotificationCellRenderer : ListCellRenderer<TermbackNotificationHandle> {
     private val panel = JPanel(BorderLayout(JBUI.scale(8), 0))
     private val iconLabel = JBLabel()
     private val textPanel = JPanel(BorderLayout())
@@ -119,7 +117,7 @@ private class TermbackNotificationCellRenderer(
                 AllIcons.Nodes.IdeaProject
             }
 
-        titleLabel.text = value.notification.titleFor(targetProject)
+        titleLabel.text = value.notification.displayTitle
         messageLabel.text = value.notification.message.ifEmpty { null }
 
         if (isSelected) {

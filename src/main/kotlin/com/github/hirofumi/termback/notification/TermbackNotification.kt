@@ -15,9 +15,6 @@ class TermbackNotification(
     val suppress: TermbackNotificationRequest.Suppress,
     val onNext: TermbackNotificationRequest.OnNext,
 ) {
-    /**
-     * Returns the title as displayed in [targetProject].
-     * If the notification originated from a different project, the title is prefixed with the source project name.
-     */
-    fun titleFor(targetProject: Project): String = if (session.project == targetProject) title else "[${session.project.name}] $title"
+    val displayTitle: String
+        get() = "[${session.project.name}] $title"
 }
