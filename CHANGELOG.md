@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- macOS native notification support for better noticeability when IDE is in background
+
 ### Removed
 
 - **Breaking:** `broadcast` field (notifications now target all projects)

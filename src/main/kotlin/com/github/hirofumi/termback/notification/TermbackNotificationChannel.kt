@@ -1,6 +1,10 @@
 package com.github.hirofumi.termback.notification
 
+import com.github.hirofumi.termback.NotificationDestination
+import com.github.hirofumi.termback.TermbackSettings
 import com.github.hirofumi.termback.notification.channels.ide.TermbackIdeNotificationChannel
+import com.github.hirofumi.termback.notification.channels.macos.TermbackMacOsNotificationChannel
+import com.intellij.openapi.util.SystemInfo
 import com.intellij.util.concurrency.annotations.RequiresEdt
 
 /**
@@ -15,7 +19,12 @@ interface TermbackNotificationChannel {
 
     companion object {
         private val ideChannel = TermbackIdeNotificationChannel()
+        private val macOsChannel by lazy { TermbackMacOsNotificationChannel() }
 
-        fun getInstance(): TermbackNotificationChannel = TermbackIdeNotificationChannel()
+        fun getInstance(): TermbackNotificationChannel =
+            when (TermbackSettings.getInstance().state.notificationDestination) {
+                NotificationDestination.IDE -> ideChannel
+                NotificationDestination.SYSTEM -> if (SystemInfo.isMac) macOsChannel else ideChannel
+            }
     }
 }

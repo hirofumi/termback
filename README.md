@@ -6,7 +6,7 @@ Bridges between IntelliJ IDEA's integrated terminal and its notification system.
 
 ## Features
 
-- Exposes a local HTTP endpoint for terminal processes to send IDE notifications
+- Exposes a local HTTP endpoint that lets terminal processes trigger notifications
 - Focuses the terminal tab on notification click
 - Automatically suppresses notifications when the tab is already active or visible
 - Provides a keyboard shortcut to pick a notification and jump to its terminal tab
@@ -77,6 +77,7 @@ Add to `.claude/settings.json` to receive IDE notifications when Claude Code is 
 
 | Setting | Description |
 |---------|-------------|
+| Notification destination | IDE or System |
 | Skip popup when single | Skip notification picker when only one exists |
 
 ## API
