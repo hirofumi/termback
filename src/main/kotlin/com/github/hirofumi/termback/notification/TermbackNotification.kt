@@ -14,7 +14,4 @@ class TermbackNotification(
     val message: String,
     val suppress: TermbackNotificationRequest.Suppress,
     val onNext: TermbackNotificationRequest.OnNext,
-) {
-    val displayTitle: String
-        get() = "[${session.project.name}] $title"
-}
+)

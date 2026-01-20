@@ -67,7 +67,8 @@ internal class TermbackMacOsNotificationHandle private constructor(
                 if (!handle.lifecycle.deliver()) return@executeOnMainThread
 
                 val nsUserNotification = Foundation.invoke(Foundation.invoke("NSUserNotification", "alloc"), "init")
-                Foundation.invoke(nsUserNotification, "setTitle:", Foundation.nsString(notification.displayTitle))
+                Foundation.invoke(nsUserNotification, "setTitle:", Foundation.nsString(notification.session.project.name))
+                Foundation.invoke(nsUserNotification, "setSubtitle:", Foundation.nsString(notification.title))
                 Foundation.invoke(nsUserNotification, "setInformativeText:", Foundation.nsString(notification.message))
                 Foundation.invoke(nsUserNotification, "setUserInfo:", SessionUserInfo.create(notification.session.id))
                 Foundation.invoke(notificationCenter(), "deliverNotification:", nsUserNotification)

@@ -47,7 +47,11 @@ internal class TermbackIdeNotificationHandle private constructor(
                 NotificationGroupManager
                     .getInstance()
                     .getNotificationGroup(GROUP_ID)
-                    .createNotification(notification.displayTitle, notification.message, NotificationType.INFORMATION)
+                    .createNotification(
+                        "[${notification.session.project.name}] ${notification.title}",
+                        notification.message,
+                        NotificationType.INFORMATION,
+                    )
 
             ideNotification.addAction(
                 NotificationAction.createSimple(TermbackBundle.message("notification.action.show")) {

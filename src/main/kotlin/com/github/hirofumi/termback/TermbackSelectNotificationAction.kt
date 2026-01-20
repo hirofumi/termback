@@ -117,7 +117,7 @@ private class TermbackNotificationCellRenderer : ListCellRenderer<TermbackNotifi
                 AllIcons.Nodes.IdeaProject
             }
 
-        titleLabel.text = value.notification.displayTitle
+        titleLabel.text = "[${value.notification.session.project.name}] ${value.notification.title}"
         messageLabel.text = value.notification.message.ifEmpty { null }
 
         if (isSelected) {
