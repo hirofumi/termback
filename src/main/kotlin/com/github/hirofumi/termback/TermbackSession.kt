@@ -3,7 +3,7 @@ package com.github.hirofumi.termback
 import com.github.hirofumi.termback.notification.TermbackNotificationHandle
 import com.github.hirofumi.termback.notification.TermbackNotificationRequest
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.wm.WindowManager
+import com.intellij.ide.impl.ProjectUtil
 import com.intellij.ui.content.Content
 import com.intellij.util.concurrency.annotations.RequiresEdt
 
@@ -39,7 +39,7 @@ class TermbackSession(
         val toolWindow = project.getTerminalToolWindow() ?: return false
         if (content !in toolWindow.contentManager.contentsRecursively) return false
 
-        WindowManager.getInstance().getFrame(project)?.toFront()
+        ProjectUtil.focusProjectWindow(project, stealFocusIfAppInactive = true)
         toolWindow.show()
         toolWindow.contentManager.setSelectedContentCB(content, true, true)
 
