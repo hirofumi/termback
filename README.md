@@ -73,6 +73,39 @@ Add to `.claude/settings.json` to receive IDE notifications when Claude Code is 
 }
 ```
 
+#### OpenCode Plugin
+
+Create `.opencode/plugins/termback.js`:
+
+```javascript
+export const TermbackPlugin = async () => {
+  return {
+    event: async ({ event }) => {
+      if (!process.env.TERMBACK_ENDPOINT) return;
+
+      const termback = (message) =>
+        fetch(process.env.TERMBACK_ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            sessionId: process.env.TERMBACK_SESSION_ID,
+            message,
+          }),
+        });
+
+      switch (event.type) {
+        case "permission.asked":
+          await termback(`Need permission: ${event.properties?.permission || "unknown"}`);
+          break;
+        case "session.idle":
+          await termback("OpenCode is waiting for input");
+          break;
+      }
+    }
+  };
+};
+```
+
 ## Settings
 
 | Setting | Description |
