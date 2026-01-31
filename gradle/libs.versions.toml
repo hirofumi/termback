@@ -2,7 +2,7 @@
 # libraries
 junit = "4.13.2"
 kotlinxSerialization = "1.10.0"
-mockk = "1.14.7"
+mockk = "1.14.9"
 opentest4j = "1.3.0"
 
 # plugins
