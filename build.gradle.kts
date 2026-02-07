@@ -141,6 +141,15 @@ tasks {
         gradleVersion = providers.gradleProperty("gradleVersion").get()
     }
 
+    // Allow CI to supply a pre-built ZIP so that the same binary goes to
+    // both the GitHub Release (unsigned) and JetBrains Marketplace (signed).
+    signPlugin {
+        val archive = providers.gradleProperty("signPluginArchive")
+        if (archive.isPresent) {
+            archiveFile.set(layout.projectDirectory.file(archive))
+        }
+    }
+
     publishPlugin {
         dependsOn(patchChangelog)
     }
