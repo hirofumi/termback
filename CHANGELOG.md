@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [0.0.3] - 2026-02-08
+
 ### Added
 
 - macOS native notification support for better noticeability when IDE is in background
@@ -24,6 +26,7 @@
 
 - Terminal-to-IDE notification system
 
-[Unreleased]: https://github.com/hirofumi/termback/compare/v0.0.2...HEAD
+[Unreleased]: https://github.com/hirofumi/termback/compare/v0.0.3...HEAD
+[0.0.3]: https://github.com/hirofumi/termback/compare/v0.0.2...v0.0.3
 [0.0.2]: https://github.com/hirofumi/termback/compare/v0.0.1...v0.0.2
 [0.0.1]: https://github.com/hirofumi/termback/commits/v0.0.1
