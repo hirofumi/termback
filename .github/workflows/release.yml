@@ -80,7 +80,7 @@ jobs:
         run: >-
           gh attestation verify "$ARCHIVE"
           -R "$GITHUB_REPOSITORY"
-          --signer-workflow .github/workflows/build.yml
+          --signer-workflow "$GITHUB_REPOSITORY/.github/workflows/build.yml"
           --source-digest "$COMMIT_SHA"
 
       # Sign and publish the plugin to JetBrains Marketplace
