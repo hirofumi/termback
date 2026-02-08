@@ -16,6 +16,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      attestations: read
     steps:
 
       # Free GitHub Actions Environment Disk Space
@@ -70,6 +71,17 @@ jobs:
         run: |
           mkdir -p ./release-assets
           gh release download "$TAG_NAME" --pattern "$FILENAME" --dir ./release-assets
+
+      - name: Verify Attestation
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ARCHIVE: ./release-assets/${{ steps.artifact.outputs.filename }}
+          COMMIT_SHA: ${{ github.sha }}
+        run: >-
+          gh attestation verify "$ARCHIVE"
+          -R "$GITHUB_REPOSITORY"
+          --signer-workflow .github/workflows/build.yml
+          --source-digest "$COMMIT_SHA"
 
       # Sign and publish the plugin to JetBrains Marketplace
       - name: Publish Plugin
