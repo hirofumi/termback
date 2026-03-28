@@ -12,6 +12,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <notificationGroup id="com.github.hirofumi.termback" displayType="STICKY_BALLOON"/>
         <httpRequestHandler implementation="com.github.hirofumi.termback.TermbackRestService"/>
+        <postStartupActivity implementation="com.github.hirofumi.termback.TermbackPostStartupActivity"/>
         <applicationConfigurable
             parentId="tools"
             instance="com.github.hirofumi.termback.TermbackSettingsConfigurable"

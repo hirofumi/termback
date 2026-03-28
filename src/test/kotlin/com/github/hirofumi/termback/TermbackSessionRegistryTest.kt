@@ -3,8 +3,11 @@ package com.github.hirofumi.termback
 import com.intellij.openapi.project.Project
 import com.intellij.ui.content.Content
 import io.mockk.mockk
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
@@ -19,15 +22,26 @@ class TermbackSessionRegistryTest {
     private fun createSession(
         project: Project = mockk(),
         content: Content = mockk(),
-    ): TermbackSession = TermbackSession(project, content)
+    ): TermbackSession = TermbackSession(TermbackSessionId.generate(), project, content)
 
     @Test
     fun `register and findById returns the session`() {
         val session = createSession()
 
-        registry.register(session)
+        assertTrue(registry.register(session))
 
         assertSame(session, registry.findById(session.id))
+    }
+
+    @Test
+    fun `register ignores a duplicate session id`() {
+        val sessionId = TermbackSessionId.generate()
+        val session1 = TermbackSession(sessionId, mockk(), mockk())
+        val session2 = TermbackSession(sessionId, mockk(), mockk())
+
+        assertTrue(registry.register(session1))
+        assertFalse(registry.register(session2))
+        assertSame(session1, registry.findById(sessionId))
     }
 
     @Test
@@ -35,38 +49,6 @@ class TermbackSessionRegistryTest {
         val unknownId = TermbackSessionId.generate()
 
         assertNull(registry.findById(unknownId))
-    }
-
-    @Test
-    fun `findByContent returns the session`() {
-        val content = mockk<Content>()
-        val session = createSession(content = content)
-
-        registry.register(session)
-
-        assertSame(session, registry.findByContent(content))
-    }
-
-    @Test
-    fun `findByContent returns null for unknown content`() {
-        val session = createSession()
-        registry.register(session)
-
-        val unknownContent = mockk<Content>()
-
-        assertNull(registry.findByContent(unknownContent))
-    }
-
-    @Test
-    fun `findByContent uses reference equality`() {
-        val content = mockk<Content>()
-        val session = createSession(content = content)
-        registry.register(session)
-
-        // Different mock instance, even if it has the same behavior
-        val differentContent = mockk<Content>()
-
-        assertNull(registry.findByContent(differentContent))
     }
 
     @Test
@@ -84,8 +66,8 @@ class TermbackSessionRegistryTest {
         val session1 = createSession()
         val session2 = createSession()
 
-        registry.register(session1)
-        registry.register(session2)
+        assertTrue(registry.register(session1))
+        assertTrue(registry.register(session2))
 
         assertSame(session1, registry.findById(session1.id))
         assertSame(session2, registry.findById(session2.id))
@@ -102,5 +84,18 @@ class TermbackSessionRegistryTest {
 
         assertNull(registry.findById(session1.id))
         assertSame(session2, registry.findById(session2.id))
+    }
+
+    @Test
+    fun `getAllSessions returns all registered sessions`() {
+        val session1 = createSession()
+        val session2 = createSession()
+        registry.register(session1)
+        registry.register(session2)
+
+        val result = registry.getAllSessions()
+
+        assertEquals(2, result.size)
+        assertEquals(setOf(session1, session2), result.toSet())
     }
 }

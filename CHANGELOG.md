@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Bind terminal sessions from `startupOptionsDeferred` instead of selecting a `Content` tab heuristically
+
 ## [0.0.3] - 2026-02-08
 
 ### Added

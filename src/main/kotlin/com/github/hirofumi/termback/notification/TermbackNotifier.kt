@@ -51,9 +51,9 @@ class TermbackNotifier {
     fun expireSuppressedNotifications(project: Project) {
         ApplicationManager.getApplication().invokeLater({
             val toolWindow = project.getTerminalToolWindow() ?: return@invokeLater
-            for (content in toolWindow.contentManager.contentsRecursively) {
-                val session = TermbackSessionRegistry.getInstance().findByContent(content) ?: continue
-                val state = toolWindow.getTabState(content)
+            for (session in TermbackSessionRegistry.getInstance().getAllSessions()) {
+                if (session.project !== project) continue
+                val state = toolWindow.getTabState(session.content)
                 session.takeSuppressedNotifications(state).forEach { it.expire() }
             }
         }, project.disposed)

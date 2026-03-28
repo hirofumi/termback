@@ -110,7 +110,7 @@ class TermbackRestServiceTest : BasePlatformTestCase() {
     fun testEndpointReturnsAcceptedForValidSessionId() {
         // Register a session first
         val content = ContentFactory.getInstance().createContent(null, "Test", false)
-        val session = TermbackSession(project, content)
+        val session = TermbackSession(TermbackSessionId.generate(), project, content)
         TermbackSessionRegistry.getInstance().register(session)
 
         try {

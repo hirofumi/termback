@@ -27,7 +27,7 @@ class TermbackSessionTest {
         content = mockk()
         contentManager = mockk()
         every { content.manager } returns contentManager
-        session = TermbackSession(project, content)
+        session = TermbackSession(TermbackSessionId.generate(), project, content)
     }
 
     private fun createMockNotification(

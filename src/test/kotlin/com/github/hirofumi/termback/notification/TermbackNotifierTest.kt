@@ -46,7 +46,7 @@ class TermbackNotifierTest {
     private fun createSession(
         project: Project = mockk(relaxed = true),
         content: Content = mockk(relaxed = true),
-    ): TermbackSession = TermbackSession(project, content)
+    ): TermbackSession = TermbackSession(TermbackSessionId.generate(), project, content)
 
     @Test
     fun `notify returns SessionNotFound when session does not exist`() {

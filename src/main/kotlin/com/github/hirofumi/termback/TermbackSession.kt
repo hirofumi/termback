@@ -2,8 +2,8 @@ package com.github.hirofumi.termback
 
 import com.github.hirofumi.termback.notification.TermbackNotificationHandle
 import com.github.hirofumi.termback.notification.TermbackNotificationRequest
-import com.intellij.openapi.project.Project
 import com.intellij.ide.impl.ProjectUtil
+import com.intellij.openapi.project.Project
 import com.intellij.ui.content.Content
 import com.intellij.util.concurrency.annotations.RequiresEdt
 
@@ -12,10 +12,10 @@ import com.intellij.util.concurrency.annotations.RequiresEdt
  * Thread-safe for notification operations; project and content are immutable after construction.
  */
 class TermbackSession(
+    val id: TermbackSessionId,
     val project: Project,
     val content: Content,
 ) {
-    val id = TermbackSessionId.generate()
     private val handles = mutableListOf<TermbackNotificationHandle>()
 
     /**
