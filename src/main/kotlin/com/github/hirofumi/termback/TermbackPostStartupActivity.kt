@@ -35,10 +35,7 @@ class TermbackPostStartupActivity : ProjectActivity {
                         LOG.warn("termback failed to await startup options for '${tab.content.displayName}'", it)
                         return@launch
                     }
-                val sessionIdValue = startupOptions.envVariables["TERMBACK_SESSION_ID"]
-                if (sessionIdValue == null) {
-                    return@launch
-                }
+                val sessionIdValue = startupOptions.envVariables["TERMBACK_SESSION_ID"] ?: return@launch
 
                 val session =
                     TermbackSession(
