@@ -13,7 +13,7 @@ Bridges between IntelliJ IDEA's integrated terminal and its notification system.
 
 ## Requirements
 
-- IntelliJ IDEA 2025.3.1 or later (or compatible IDE)
+- IntelliJ IDEA 2026.1 or later (or compatible IDE)
 
 ## Installation
 

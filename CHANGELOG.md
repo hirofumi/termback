@@ -7,6 +7,7 @@
 ### Changed
 
 - Bind terminal sessions from `startupOptionsDeferred` instead of selecting a `Content` tab heuristically
+- Require IntelliJ 2026.1 or later
 
 ## [0.0.3] - 2026-02-08
 

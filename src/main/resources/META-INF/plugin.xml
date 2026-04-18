@@ -31,7 +31,7 @@
     </actions>
 
     <extensions defaultExtensionNs="org.jetbrains.plugins.terminal">
-        <localTerminalCustomizer implementation="com.github.hirofumi.termback.terminal.TermbackLocalTerminalCustomizer"/>
+        <shellExecOptionsCustomizer implementation="com.github.hirofumi.termback.terminal.TermbackShellExecOptionsCustomizer"/>
     </extensions>
 
     <applicationListeners>

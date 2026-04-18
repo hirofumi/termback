@@ -46,9 +46,9 @@ getAllSessions() |   | unregister()        |  |                               | 
 | TermbackApplicationActivationListener |  | TermbackRestService |  |           |  +-----------------------+  |
 | (Application-level Listener)          |  | (HTTP endpoint)     |  |           |                             |
 +---------------------------------------+  +---------------------+  |           |                             |
-                                                      ^             |           |                             |
-+---------------------------------+  getEndpointUrl() |             | post()  +-----------------------------+ |
-| TermbackLocalTerminalCustomizer |-------------------+             +-------->| TermbackNotificationChannel |-+
-| (Terminal Extension)            |                                           | (IDE / macOS)               |
-+---------------------------------+                                           +-----------------------------+
+                                                         ^          |           |                             |
++------------------------------------+  getEndpointUrl() |          | post()  +-----------------------------+ |
+| TermbackShellExecOptionsCustomizer |-------------------+          +-------->| TermbackNotificationChannel |-+
+| (Terminal Extension)               |                                        | (IDE / macOS)               |
++------------------------------------+                                        +-----------------------------+
 ```
