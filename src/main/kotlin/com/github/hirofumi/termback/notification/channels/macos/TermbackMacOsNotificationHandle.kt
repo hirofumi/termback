@@ -1,9 +1,9 @@
 package com.github.hirofumi.termback.notification.channels.macos
 
-import com.github.hirofumi.termback.TermbackSessionId
-import com.github.hirofumi.termback.TermbackSessionRegistry
 import com.github.hirofumi.termback.notification.TermbackNotification
 import com.github.hirofumi.termback.notification.TermbackNotificationHandle
+import com.github.hirofumi.termback.session.TermbackSessionId
+import com.github.hirofumi.termback.session.TermbackSessionRegistry
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.ui.mac.foundation.Foundation
 import com.intellij.ui.mac.foundation.ID

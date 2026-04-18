@@ -1,9 +1,9 @@
 package com.github.hirofumi.termback.notification
 
-import com.github.hirofumi.termback.TermbackSession
-import com.github.hirofumi.termback.TermbackSessionRegistry
-import com.github.hirofumi.termback.getTabState
-import com.github.hirofumi.termback.getTerminalToolWindow
+import com.github.hirofumi.termback.session.TermbackSession
+import com.github.hirofumi.termback.session.TermbackSessionRegistry
+import com.github.hirofumi.termback.terminal.getTabState
+import com.github.hirofumi.termback.terminal.getTerminalToolWindow
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project

@@ -1,6 +1,6 @@
 package com.github.hirofumi.termback.notification
 
-import com.github.hirofumi.termback.TermbackSession
+import com.github.hirofumi.termback.session.TermbackSession
 
 /**
  * Represents the content and behavior of a notification.

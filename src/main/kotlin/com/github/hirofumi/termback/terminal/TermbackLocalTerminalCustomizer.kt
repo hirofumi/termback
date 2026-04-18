@@ -1,5 +1,7 @@
-package com.github.hirofumi.termback
+package com.github.hirofumi.termback.terminal
 
+import com.github.hirofumi.termback.TermbackRestService
+import com.github.hirofumi.termback.session.TermbackSessionId
 import com.intellij.openapi.project.Project
 import com.intellij.platform.eel.EelDescriptor
 import org.jetbrains.plugins.terminal.LocalTerminalCustomizer

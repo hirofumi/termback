@@ -1,9 +1,10 @@
-package com.github.hirofumi.termback
+package com.github.hirofumi.termback.session
 
 import com.github.hirofumi.termback.notification.TermbackNotification
 import com.github.hirofumi.termback.notification.TermbackNotificationHandle
 import com.github.hirofumi.termback.notification.TermbackNotificationRequest.OnNext
 import com.github.hirofumi.termback.notification.TermbackNotificationRequest.Suppress
+import com.github.hirofumi.termback.terminal.TermbackTabState
 import com.intellij.openapi.project.Project
 import com.intellij.ui.content.Content
 import com.intellij.ui.content.ContentManager

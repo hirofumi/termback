@@ -1,4 +1,4 @@
-package com.github.hirofumi.termback
+package com.github.hirofumi.termback.session
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service

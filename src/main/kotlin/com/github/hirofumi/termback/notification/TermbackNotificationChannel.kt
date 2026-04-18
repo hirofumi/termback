@@ -1,9 +1,9 @@
 package com.github.hirofumi.termback.notification
 
-import com.github.hirofumi.termback.NotificationDestination
-import com.github.hirofumi.termback.TermbackSettings
 import com.github.hirofumi.termback.notification.channels.ide.TermbackIdeNotificationChannel
 import com.github.hirofumi.termback.notification.channels.macos.TermbackMacOsNotificationChannel
+import com.github.hirofumi.termback.settings.NotificationDestination
+import com.github.hirofumi.termback.settings.TermbackSettings
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.util.concurrency.annotations.RequiresEdt
 

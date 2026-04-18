@@ -15,7 +15,7 @@
         <postStartupActivity implementation="com.github.hirofumi.termback.TermbackPostStartupActivity"/>
         <applicationConfigurable
             parentId="tools"
-            instance="com.github.hirofumi.termback.TermbackSettingsConfigurable"
+            instance="com.github.hirofumi.termback.settings.TermbackSettingsConfigurable"
             id="com.github.hirofumi.termback.settings"
             displayName="Termback"/>
     </extensions>
@@ -31,7 +31,7 @@
     </actions>
 
     <extensions defaultExtensionNs="org.jetbrains.plugins.terminal">
-        <localTerminalCustomizer implementation="com.github.hirofumi.termback.TermbackLocalTerminalCustomizer"/>
+        <localTerminalCustomizer implementation="com.github.hirofumi.termback.terminal.TermbackLocalTerminalCustomizer"/>
     </extensions>
 
     <applicationListeners>

@@ -1,4 +1,4 @@
-package com.github.hirofumi.termback
+package com.github.hirofumi.termback.terminal
 
 /**
  * Represents the visibility state of a terminal tab.

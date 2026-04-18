@@ -1,5 +1,8 @@
 package com.github.hirofumi.termback
 
+import com.github.hirofumi.termback.session.TermbackSession
+import com.github.hirofumi.termback.session.TermbackSessionId
+import com.github.hirofumi.termback.session.TermbackSessionRegistry
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.ui.content.ContentFactory
 import org.jetbrains.ide.BuiltInServerManager

@@ -1,6 +1,8 @@
 package com.github.hirofumi.termback
 
 import com.github.hirofumi.termback.notification.TermbackNotificationHandle
+import com.github.hirofumi.termback.session.TermbackSessionRegistry
+import com.github.hirofumi.termback.settings.TermbackSettings
 import com.intellij.icons.AllIcons
 import com.intellij.ide.RecentProjectIconHelper
 import com.intellij.openapi.actionSystem.ActionUpdateThread

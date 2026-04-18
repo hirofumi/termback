@@ -1,4 +1,4 @@
-package com.github.hirofumi.termback
+package com.github.hirofumi.termback.session
 
 import kotlinx.serialization.Serializable
 import java.util.UUID

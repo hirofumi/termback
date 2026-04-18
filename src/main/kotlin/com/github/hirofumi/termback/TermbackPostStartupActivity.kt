@@ -1,6 +1,9 @@
 package com.github.hirofumi.termback
 
 import com.github.hirofumi.termback.notification.TermbackNotifier
+import com.github.hirofumi.termback.session.TermbackSession
+import com.github.hirofumi.termback.session.TermbackSessionId
+import com.github.hirofumi.termback.session.TermbackSessionRegistry
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.ProjectActivity

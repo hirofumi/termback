@@ -1,7 +1,7 @@
 package com.github.hirofumi.termback.notification
 
-import com.github.hirofumi.termback.TermbackSessionId
-import com.github.hirofumi.termback.TermbackTabState
+import com.github.hirofumi.termback.session.TermbackSessionId
+import com.github.hirofumi.termback.terminal.TermbackTabState
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json

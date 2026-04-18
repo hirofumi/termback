@@ -1,4 +1,4 @@
-package com.github.hirofumi.termback
+package com.github.hirofumi.termback.session
 
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals

@@ -1,5 +1,6 @@
-package com.github.hirofumi.termback
+package com.github.hirofumi.termback.settings
 
+import com.github.hirofumi.termback.TermbackBundle
 import com.intellij.openapi.options.BoundConfigurable
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.ui.dsl.builder.bindItem

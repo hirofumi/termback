@@ -1,4 +1,4 @@
-package com.github.hirofumi.termback
+package com.github.hirofumi.termback.terminal
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
