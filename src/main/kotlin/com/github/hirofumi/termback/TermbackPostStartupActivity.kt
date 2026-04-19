@@ -19,11 +19,10 @@ class TermbackPostStartupActivity : ProjectActivity {
     override suspend fun execute(project: Project) {
         val registry = TermbackSessionRegistry.getInstance()
         val notifier = TermbackNotifier.getInstance()
-        val tabsManager = TerminalToolWindowTabsManager.getInstance(project)
         val listener = Listener(project, registry, notifier)
 
-        tabsManager.addListener(project, listener)
-        tabsManager.tabs.forEach(listener::tabAdded)
+        project.messageBus.connect(project).subscribe(TerminalTabsManagerListener.TOPIC, listener)
+        TerminalToolWindowTabsManager.getInstance(project).tabs.forEach(listener::tabAdded)
     }
 
     private class Listener(
